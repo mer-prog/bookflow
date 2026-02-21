@@ -61,7 +61,7 @@ export default function HomePage() {
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy leading-tight">
               予約管理を、
-              <span className="text-mint">もっとスマート</span>に。
+              <span className="whitespace-nowrap"><span className="text-mint">もっとスマート</span>に。</span>
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
               BookFlowは、美容院・サロン・クリニックなど、あらゆる予約ビジネスの効率を劇的に改善するスケジューリングプラットフォームです。
