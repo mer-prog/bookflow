@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum CancelRisk {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  name       String
+  phone      String?
+  role       Role      @default(CUSTOMER)
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id])
+  bookings   Booking[] @relation("CustomerBookings")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Business {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  address       String?
+  phone         String?
+  email         String?
+  businessHours Json
+  users         User[]
+  services      Service[]
+  staff         Staff[]
+  bookings      Booking[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Service {
+  id            String         @id @default(cuid())
+  businessId    String
+  business      Business       @relation(fields: [businessId], references: [id])
+  name          String
+  description   String?
+  duration      Int
+  price         Int
+  active        Boolean        @default(true)
+  bookings      Booking[]
+  staffServices StaffService[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Staff {
+  id            String         @id @default(cuid())
+  businessId    String
+  business      Business       @relation(fields: [businessId], references: [id])
+  name          String
+  email         String?
+  active        Boolean        @default(true)
+  staffServices StaffService[]
+  bookings      Booking[]
+  timeSlots     TimeSlot[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model StaffService {
+  id        String  @id @default(cuid())
+  staffId   String
+  serviceId String
+  staff     Staff   @relation(fields: [staffId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([staffId, serviceId])
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  businessId    String
+  business      Business      @relation(fields: [businessId], references: [id])
+  serviceId     String
+  service       Service       @relation(fields: [serviceId], references: [id])
+  staffId       String
+  staff         Staff         @relation(fields: [staffId], references: [id])
+  customerId    String?
+  customer      User?         @relation("CustomerBookings", fields: [customerId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  date          DateTime
+  startTime     String
+  endTime       String
+  status        BookingStatus @default(PENDING)
+  cancelRisk    CancelRisk    @default(LOW)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model TimeSlot {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id])
+  date        DateTime
+  startTime   String
+  endTime     String
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
