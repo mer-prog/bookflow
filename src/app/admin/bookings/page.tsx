@@ -12,6 +12,7 @@ const statusFilters = [
   { label: "確定", value: "CONFIRMED" },
   { label: "完了", value: "COMPLETED" },
   { label: "キャンセル", value: "CANCELLED" },
+  { label: "無断キャンセル", value: "NO_SHOW" },
 ];
 
 export default function AdminBookingsPage() {

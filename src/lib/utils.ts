@@ -82,6 +82,7 @@ export const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: "確定",
   CANCELLED: "キャンセル",
   COMPLETED: "完了",
+  NO_SHOW: "無断キャンセル",
 };
 
 export const STATUS_COLORS: Record<string, string> = {
@@ -89,6 +90,7 @@ export const STATUS_COLORS: Record<string, string> = {
   CONFIRMED: "bg-blue-100 text-blue-800",
   CANCELLED: "bg-red-100 text-red-800",
   COMPLETED: "bg-green-100 text-green-800",
+  NO_SHOW: "bg-orange-100 text-orange-800",
 };
 
 export const RISK_LABELS: Record<string, string> = {

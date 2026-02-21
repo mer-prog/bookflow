@@ -7,7 +7,7 @@ import type { BookingWithRelations } from "@/types";
 
 export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] }) {
   const atRisk = bookings.filter(
-    (b) => b.cancelRisk !== "LOW" && b.status !== "CANCELLED" && b.status !== "COMPLETED"
+    (b) => b.cancelRisk !== "LOW" && b.status !== "CANCELLED" && b.status !== "COMPLETED" && b.status !== "NO_SHOW"
   );
 
   if (atRisk.length === 0) {
