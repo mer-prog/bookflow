@@ -34,7 +34,7 @@ export function CancelRateChart() {
 
   return (
     <Card>
-      <h3 className="text-lg font-semibold text-navy mb-4">Cancellation Rate Trend</h3>
+      <h3 className="text-lg font-semibold text-navy mb-4">キャンセル率推移</h3>
       {loading ? (
         <div className="flex items-center justify-center h-[250px]">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-navy" />
@@ -55,7 +55,7 @@ export function CancelRateChart() {
               tickFormatter={(v) => `${v}%`}
             />
             <Tooltip
-              formatter={(value) => [`${value}%`, "Cancel Rate"]}
+              formatter={(value) => [`${value}%`, "キャンセル率"]}
               contentStyle={{
                 borderRadius: "8px",
                 border: "1px solid #e5e7eb",

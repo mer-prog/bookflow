@@ -2,11 +2,15 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { STATUS_LABELS, STATUS_COLORS } from "@/lib/utils";
+import { STATUS_LABELS, STATUS_COLORS, timeToMinutes } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { BookingWithRelations } from "@/types";
 
 export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }) {
+  const sorted = [...bookings].sort(
+    (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
+  );
+
   if (bookings.length === 0) {
     return (
       <Card>
@@ -20,7 +24,7 @@ export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }
     <Card>
       <h3 className="text-lg font-semibold text-navy mb-4">今日の予約</h3>
       <div className="space-y-3">
-        {bookings.map((booking) => (
+        {sorted.map((booking) => (
           <div
             key={booking.id}
             className="flex items-center justify-between p-3 bg-muted rounded-lg"

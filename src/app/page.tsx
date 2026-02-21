@@ -59,7 +59,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-navy leading-tight break-keep">
               予約管理を、
               <span className="whitespace-nowrap"><span className="text-mint">もっとスマート</span>に。</span>
             </h1>
