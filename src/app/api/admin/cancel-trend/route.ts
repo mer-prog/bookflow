@@ -28,7 +28,7 @@ export async function GET() {
     const rate = total > 0 ? Math.round((cancelled / total) * 1000) / 10 : 0;
 
     weeks.push({
-      week: `Week ${4 - i}`,
+      week: `第${4 - i}週`,
       cancelRate: rate,
       total,
       cancelled,

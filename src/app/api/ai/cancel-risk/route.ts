@@ -8,19 +8,19 @@ function getSuggestedAction(risk: string, riskFactors: string[], pastCancellatio
 
   if (risk === "HIGH") {
     if (cancelRate > 0.3) {
-      return "Consider sending a confirmation reminder 24 hours before the appointment and requesting a deposit to reduce no-show risk.";
+      return "予約24時間前にリマインドを送信し、デポジットの事前徴収を検討してください。";
     }
-    return "Consider sending a confirmation reminder 24 hours before the appointment and offering a flexible reschedule option.";
+    return "予約24時間前にリマインドを送信し、柔軟な日程変更オプションを提案してください。";
   }
 
   if (risk === "MEDIUM") {
     if (riskFactors.some((f) => f.includes("当日") || f.includes("直前"))) {
-      return "Send a confirmation message to verify the customer still plans to attend the same-day booking.";
+      return "当日予約の来店意思を確認するメッセージを送信してください。";
     }
-    return "Consider sending a reminder the day before to confirm the appointment.";
+    return "前日にリマインドを送信し、予約の確認を行ってください。";
   }
 
-  return "No immediate action required. Standard reminder flow is sufficient.";
+  return "特別な対応は不要です。通常のリマインド対応で問題ありません。";
 }
 
 export async function POST(request: NextRequest) {
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 以下のJSON形式で回答してください（他のテキストは不要）:
 {
   "explanation": "キャンセルリスクの理由を2-3文の日本語で簡潔に説明",
-  "suggestedAction": "推奨アクションを1-2文の英語で具体的に記述。例: Consider sending a confirmation reminder 24 hours before the appointment"
+  "suggestedAction": "推奨アクションを1-2文の日本語で具体的に記述。例: 予約24時間前にリマインドを送信し、日程変更オプションを提案してください"
 }`;
 
     const message = await client.messages.create({

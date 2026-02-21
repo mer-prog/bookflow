@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BookFlow - スマート予約管理プラットフォーム
 
-## Getting Started
+美容院・サロン・クリニック向けのAI搭載予約管理SaaS。
+キャンセルリスクをAIが事前予測し、無断キャンセルを防止します。
 
-First, run the development server:
+## デモ
+https://bookflow-five.vercel.app
 
-```bash
+## 主な機能
+- 📊 ダッシュボード（本日の予約・週間売上・キャンセル率推移）
+- 📅 カレンダービュー（週表示・日表示）
+- 📋 予約一覧（ステータスフィルター・リスク表示）
+- 🤖 AIキャンセルリスク予測（HIGH/MEDIUM/LOW自動判定）
+- 💡 リスク要因分析・推奨アクション提案
+- 🔔 要注意予約へのリマインド送信
+- ⚙️ サービス管理・営業時間設定
+
+## 技術スタック
+- **Frontend**: Next.js 16, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, NextAuth.js
+- **Database**: PostgreSQL (Neon), Prisma ORM
+- **Charts**: Recharts
+- **Deploy**: Vercel
+
+## セットアップ
+
+### 環境変数
+DATABASE_URL=postgresql://...
+DIRECT_URL=postgresql://...
+NEXTAUTH_SECRET=your-secret
+NEXTAUTH_URL=http://localhost:3000
+ANTHROPIC_API_KEY=（オプション：AI説明機能用）
+
+### 起動
+npm install
+npx prisma generate
+npx prisma db push
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ライセンス
+MIT

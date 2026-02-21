@@ -34,7 +34,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
 
   function handleSendReminder(bookingId: string, customerName: string) {
     setSentReminders((prev) => new Set(prev).add(bookingId));
-    setToast(`Reminder sent to ${customerName}`);
+    setToast(`${customerName}にリマインドを送信しました`);
     setTimeout(() => setToast(null), 3000);
   }
 
@@ -80,7 +80,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
                 <CancelRiskBadge risk={booking.cancelRisk} />
                 {sentReminders.has(booking.id) ? (
                   <Button size="sm" variant="outline" disabled className="text-green-600 border-green-200">
-                    Sent ✓
+                    送信済 ✓
                   </Button>
                 ) : (
                   <Button
@@ -88,7 +88,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
                     variant="outline"
                     onClick={() => handleSendReminder(booking.id, booking.customerName)}
                   >
-                    Send Reminder
+                    リマインド送信
                   </Button>
                 )}
                 <RiskExplanation bookingId={booking.id} risk={booking.cancelRisk} />

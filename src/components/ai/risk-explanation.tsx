@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
+import { RISK_LABELS } from "@/lib/utils";
 
 interface Props {
   bookingId: string;
@@ -68,7 +69,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
                       : "bg-green-100 text-green-800"
                 }`}
               >
-                {risk}
+                {RISK_LABELS[risk] || risk}
               </span>
             </div>
 
@@ -103,7 +104,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
                     <path d="M8 1v6l3 3" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="8" cy="8" r="6.5" stroke="#2563eb" strokeWidth="1.5" />
                   </svg>
-                  <span className="text-sm font-medium text-blue-800">Suggested Action</span>
+                  <span className="text-sm font-medium text-blue-800">推奨アクション</span>
                 </div>
                 <p className="text-sm text-blue-700 leading-relaxed">{suggestedAction}</p>
               </div>

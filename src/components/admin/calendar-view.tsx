@@ -30,27 +30,34 @@ export function CalendarView({ bookings, viewDate, view }: Props) {
         {/* Header */}
         <div className="grid gap-px bg-border" style={{ gridTemplateColumns: `80px repeat(${dates.length}, 1fr)` }}>
           <div className="bg-white p-3" />
-          {dates.map((date, i) => (
-            <div
-              key={i}
-              className={cn(
-                "bg-white p-3 text-center",
-                isSameDay(date, today) && "bg-mint/5"
-              )}
-            >
-              <p className="text-xs text-muted-foreground">
-                {view === "week" ? weekdays[i] : date.toLocaleDateString("ja-JP", { weekday: "long" })}
-              </p>
-              <p
+          {dates.map((date, i) => {
+            const isSunday = date.getDay() === 0;
+            return (
+              <div
+                key={i}
                 className={cn(
-                  "text-lg font-bold",
-                  isSameDay(date, today) ? "text-mint" : "text-navy"
+                  "p-3 text-center",
+                  isSunday ? "bg-gray-100" : "bg-white",
+                  isSameDay(date, today) && !isSunday && "bg-mint/5"
                 )}
               >
-                {date.getDate()}
-              </p>
-            </div>
-          ))}
+                <p className={cn("text-xs", isSunday ? "text-gray-400" : "text-muted-foreground")}>
+                  {view === "week" ? weekdays[i] : date.toLocaleDateString("ja-JP", { weekday: "long" })}
+                </p>
+                <p
+                  className={cn(
+                    "text-lg font-bold",
+                    isSunday ? "text-gray-400" : isSameDay(date, today) ? "text-mint" : "text-navy"
+                  )}
+                >
+                  {date.getDate()}
+                </p>
+                {isSunday && (
+                  <p className="text-[10px] text-gray-400 mt-0.5">定休日</p>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Time grid */}
@@ -63,13 +70,15 @@ export function CalendarView({ bookings, viewDate, view }: Props) {
                 </span>
               </div>
               {dates.map((date, di) => {
-                const cellBookings = getBookingsForDateAndHour(date, hour);
+                const isSunday = date.getDay() === 0;
+                const cellBookings = isSunday ? [] : getBookingsForDateAndHour(date, hour);
                 return (
                   <div
                     key={`${hour}-${di}`}
                     className={cn(
-                      "bg-white p-1 min-h-[60px] border-t border-border/50",
-                      isSameDay(date, today) && "bg-mint/5"
+                      "p-1 min-h-[60px] border-t border-border/50",
+                      isSunday ? "bg-gray-100" : "bg-white",
+                      isSameDay(date, today) && !isSunday && "bg-mint/5"
                     )}
                   >
                     {cellBookings.map((b) => (
