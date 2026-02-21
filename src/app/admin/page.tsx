@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { StatsCards } from "@/components/admin/stats-cards";
 import { TodayBookings } from "@/components/admin/today-bookings";
 import { AtRiskBookings } from "@/components/admin/at-risk-bookings";
+import { CancelRateChart } from "@/components/admin/cancel-rate-chart";
 import type { DashboardStats, BookingWithRelations } from "@/types";
 
 export default function AdminDashboard() {
@@ -65,6 +66,8 @@ export default function AdminDashboard() {
         <TodayBookings bookings={todayBookings} />
         <AtRiskBookings bookings={bookings} />
       </div>
+
+      <CancelRateChart />
     </div>
   );
 }

@@ -3,6 +3,26 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { getRiskFactors } from "@/lib/cancel-risk";
 
+function getSuggestedAction(risk: string, riskFactors: string[], pastCancellations: number, totalBookings: number): string {
+  const cancelRate = totalBookings > 0 ? pastCancellations / totalBookings : 0;
+
+  if (risk === "HIGH") {
+    if (cancelRate > 0.3) {
+      return "Consider sending a confirmation reminder 24 hours before the appointment and requesting a deposit to reduce no-show risk.";
+    }
+    return "Consider sending a confirmation reminder 24 hours before the appointment and offering a flexible reschedule option.";
+  }
+
+  if (risk === "MEDIUM") {
+    if (riskFactors.some((f) => f.includes("当日") || f.includes("直前"))) {
+      return "Send a confirmation message to verify the customer still plans to attend the same-day booking.";
+    }
+    return "Consider sending a reminder the day before to confirm the appointment.";
+  }
+
+  return "No immediate action required. Standard reminder flow is sufficient.";
+}
+
 export async function POST(request: NextRequest) {
   const { bookingId } = await request.json();
 
@@ -48,13 +68,15 @@ export async function POST(request: NextRequest) {
         ? `この予約のリスク要因: ${riskFactors.join("、")}。リスクレベル: ${booking.cancelRisk}`
         : `この予約のキャンセルリスクは${booking.cancelRisk === "LOW" ? "低い" : booking.cancelRisk === "MEDIUM" ? "中程度" : "高い"}です。特定のリスク要因は検出されませんでした。`;
 
-    return NextResponse.json({ explanation, factors: riskFactors });
+    const suggestedAction = getSuggestedAction(booking.cancelRisk, riskFactors, pastCancellations, totalBookings);
+
+    return NextResponse.json({ explanation, factors: riskFactors, suggestedAction });
   }
 
   try {
     const client = new Anthropic({ apiKey });
 
-    const prompt = `あなたは予約管理システムのAIアシスタントです。以下の予約情報とリスク要因に基づいて、キャンセルリスクの理由を2-3文の日本語で簡潔に説明してください。
+    const prompt = `あなたは予約管理システムのAIアシスタントです。以下の予約情報とリスク要因に基づいて、2つのセクションに分けて回答してください。
 
 予約情報:
 - サービス: ${booking.service.name}
@@ -70,18 +92,36 @@ export async function POST(request: NextRequest) {
 - 過去の予約数: ${totalBookings}
 - キャンセル数: ${pastCancellations}
 
-簡潔に説明してください:`;
+以下のJSON形式で回答してください（他のテキストは不要）:
+{
+  "explanation": "キャンセルリスクの理由を2-3文の日本語で簡潔に説明",
+  "suggestedAction": "推奨アクションを1-2文の英語で具体的に記述。例: Consider sending a confirmation reminder 24 hours before the appointment"
+}`;
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 256,
+      max_tokens: 512,
       messages: [{ role: "user", content: prompt }],
     });
 
-    const explanation =
+    const text =
       message.content[0].type === "text" ? message.content[0].text : "";
 
-    return NextResponse.json({ explanation, factors: riskFactors });
+    try {
+      const parsed = JSON.parse(text);
+      return NextResponse.json({
+        explanation: parsed.explanation || text,
+        factors: riskFactors,
+        suggestedAction: parsed.suggestedAction || getSuggestedAction(booking.cancelRisk, riskFactors, pastCancellations, totalBookings),
+      });
+    } catch {
+      // If JSON parsing fails, use text as explanation with rule-based action
+      return NextResponse.json({
+        explanation: text,
+        factors: riskFactors,
+        suggestedAction: getSuggestedAction(booking.cancelRisk, riskFactors, pastCancellations, totalBookings),
+      });
+    }
   } catch {
     // Fallback to rule-based explanation
     const explanation =
@@ -89,6 +129,10 @@ export async function POST(request: NextRequest) {
         ? `この予約のリスク要因: ${riskFactors.join("、")}。リスクレベル: ${booking.cancelRisk}`
         : `この予約のキャンセルリスクは低いです。`;
 
-    return NextResponse.json({ explanation, factors: riskFactors });
+    return NextResponse.json({
+      explanation,
+      factors: riskFactors,
+      suggestedAction: getSuggestedAction(booking.cancelRisk, riskFactors, pastCancellations, totalBookings),
+    });
   }
 }

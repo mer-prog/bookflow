@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 
 interface Props {
@@ -13,6 +12,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
   const [open, setOpen] = useState(false);
   const [explanation, setExplanation] = useState("");
   const [factors, setFactors] = useState<string[]>([]);
+  const [suggestedAction, setSuggestedAction] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function fetchExplanation() {
@@ -29,6 +29,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
       const data = await res.json();
       setExplanation(data.explanation);
       setFactors(data.factors || []);
+      setSuggestedAction(data.suggestedAction || "");
     } catch {
       setExplanation("リスク分析の取得に失敗しました。");
     }
@@ -94,6 +95,19 @@ export function RiskExplanation({ bookingId, risk }: Props) {
               </div>
               <p className="text-sm text-foreground leading-relaxed">{explanation}</p>
             </div>
+
+            {suggestedAction && (
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 1v6l3 3" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="8" cy="8" r="6.5" stroke="#2563eb" strokeWidth="1.5" />
+                  </svg>
+                  <span className="text-sm font-medium text-blue-800">Suggested Action</span>
+                </div>
+                <p className="text-sm text-blue-700 leading-relaxed">{suggestedAction}</p>
+              </div>
+            )}
           </div>
         )}
       </Modal>
