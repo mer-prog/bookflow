@@ -15,13 +15,13 @@ export async function GET() {
   const [todayBookings, weekBookings, totalBookings, cancelledBookings, weekRevenue] =
     await Promise.all([
       prisma.booking.count({
-        where: { date: { gte: today, lt: tomorrow }, status: { not: "CANCELLED" } },
+        where: { date: { gte: today, lt: tomorrow }, status: { notIn: ["CANCELLED", "NO_SHOW"] } },
       }),
       prisma.booking.count({
-        where: { date: { gte: weekStart, lt: weekEnd }, status: { not: "CANCELLED" } },
+        where: { date: { gte: weekStart, lt: weekEnd }, status: { notIn: ["CANCELLED", "NO_SHOW"] } },
       }),
       prisma.booking.count(),
-      prisma.booking.count({ where: { status: "CANCELLED" } }),
+      prisma.booking.count({ where: { status: { in: ["CANCELLED", "NO_SHOW"] } } }),
       prisma.booking.findMany({
         where: {
           date: { gte: weekStart, lt: weekEnd },

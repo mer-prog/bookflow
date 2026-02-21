@@ -17,6 +17,7 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+  NO_SHOW
 }
 
 enum CancelRisk {
@@ -112,6 +113,7 @@ model Booking {
   endTime       String
   status        BookingStatus @default(PENDING)
   cancelRisk    CancelRisk    @default(LOW)
+  cancelReason  String?
   notes         String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

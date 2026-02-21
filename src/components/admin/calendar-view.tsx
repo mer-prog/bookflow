@@ -80,6 +80,7 @@ export function CalendarView({ bookings, viewDate, view }: Props) {
                           b.status === "CONFIRMED" ? "bg-blue-100 text-blue-800 border-l-2 border-blue-500" :
                           b.status === "PENDING" ? "bg-yellow-100 text-yellow-800 border-l-2 border-yellow-500" :
                           b.status === "COMPLETED" ? "bg-green-100 text-green-800 border-l-2 border-green-500" :
+                          b.status === "NO_SHOW" ? "bg-orange-100 text-orange-800 border-l-2 border-orange-500" :
                           "bg-red-100 text-red-800 border-l-2 border-red-500"
                         )}
                       >

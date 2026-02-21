@@ -68,7 +68,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
       ? "info"
       : booking.status === "COMPLETED"
         ? "success"
-        : booking.status === "CANCELLED"
+        : booking.status === "CANCELLED" || booking.status === "NO_SHOW"
           ? "destructive"
           : "warning";
 
@@ -127,7 +127,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
-            {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" && (
+            {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" && booking.status !== "NO_SHOW" && (
               <Button
                 variant="destructive"
                 className="w-full"
