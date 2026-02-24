@@ -192,7 +192,8 @@ npm run dev
 
 | Role | Email | Password |
 |:---|:---|:---|
-| Admin | `admin@example.com` | `password123` |
+| Admin | `admin@bloom.com` | `password123` |
+| Customer | `customer@bloom.com` | `password123` |
 
 <br />
 
