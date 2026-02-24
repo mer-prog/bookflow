@@ -10,7 +10,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "必須項目を入力してください" }, { status: 400 });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  if (typeof password !== "string" || password.length < 8) {
+    return NextResponse.json({ error: "パスワードは8文字以上で入力してください" }, { status: 400 });
+  }
+
+  // Sanitize email
+  const sanitizedEmail = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+    return NextResponse.json({ error: "有効なメールアドレスを入力してください" }, { status: 400 });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
   if (existing) {
     return NextResponse.json({ error: "このメールアドレスは既に登録されています" }, { status: 400 });
   }
@@ -20,7 +30,7 @@ export async function POST(request: Request) {
   const user = await prisma.user.create({
     data: {
       name,
-      email,
+      email: sanitizedEmail,
       password: hashedPassword,
       phone: phone || null,
       role: "CUSTOMER",

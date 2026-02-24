@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { getRiskFactors } from "@/lib/cancel-risk";
+import { requireAdmin } from "@/lib/api-auth";
 
 function getSuggestedAction(risk: string, riskFactors: string[], pastCancellations: number, totalBookings: number): string {
   const cancelRate = totalBookings > 0 ? pastCancellations / totalBookings : 0;
@@ -24,6 +25,9 @@ function getSuggestedAction(risk: string, riskFactors: string[], pastCancellatio
 }
 
 export async function POST(request: NextRequest) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   const { bookingId } = await request.json();
 
   if (!bookingId) {
@@ -32,7 +36,11 @@ export async function POST(request: NextRequest) {
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { service: true, staff: true, customer: true },
+    include: {
+      service: true,
+      staff: true,
+      customer: { select: { id: true, name: true, email: true, phone: true, role: true } },
+    },
   });
 
   if (!booking) {
@@ -59,7 +67,7 @@ export async function POST(request: NextRequest) {
     totalBookings,
   });
 
-  const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
     // Return rule-based explanation without AI
