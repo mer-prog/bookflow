@@ -6,6 +6,12 @@ import { auth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
+
+  // Require authentication to list bookings
+  if (!session?.user) {
+    return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+  }
+
   const { searchParams } = request.nextUrl;
   const status = searchParams.get("status");
   const staffId = searchParams.get("staffId");
@@ -15,13 +21,17 @@ export async function GET(request: NextRequest) {
   if (staffId) where.staffId = staffId;
 
   // If customer, only show their bookings
-  if (session?.user && (session.user as Record<string, unknown>).role === "CUSTOMER") {
+  if ((session.user as Record<string, unknown>).role === "CUSTOMER") {
     where.customerId = session.user.id;
   }
 
   const bookings = await prisma.booking.findMany({
     where,
-    include: { service: true, staff: true, customer: true },
+    include: {
+      service: true,
+      staff: true,
+      customer: { select: { id: true, name: true, email: true, phone: true, role: true } },
+    },
     orderBy: { date: "asc" },
   });
 

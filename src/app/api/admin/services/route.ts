@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 
 export async function GET() {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   const services = await prisma.service.findMany({
     include: { staffServices: { include: { staff: true } } },
     orderBy: { createdAt: "desc" },
@@ -10,6 +14,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   const body = await request.json();
   const { name, description, duration, price, staffIds } = body;
 
