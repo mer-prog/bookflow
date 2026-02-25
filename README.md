@@ -17,7 +17,7 @@
 
 <br />
 
-[**Live Demo**](https://bookflow-five.vercel.app) · [**Features**](#-features) · [**Architecture**](#-architecture) · [**Getting Started**](#-getting-started) · [**API Reference**](#-api-reference)
+[**Live Demo**](https://bookflow-five.vercel.app) · [**Features**](#features) · [**Architecture**](#architecture) · [**Getting Started**](#getting-started) · [**API Reference**](#api-reference)
 
 <br />
 
@@ -94,7 +94,7 @@ BookFlowは**ルールベースエンジン + Claude AI**のハイブリッド�
 │                                                               │
 │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐  │
 │  │  Middleware  │  │  API Routes  │  │  Server Components  │  │
-│  │  (Auth Gate) │  │  (14 端末)    │  │  (SSR / RSC)       │  │
+│  │  (Auth Gate) │  │  (14 endpoints)│  │  (SSR / RSC)       │  │
 │  └──────┬──────┘  └──────┬───────┘  └─────────────────────┘  │
 │         │                │                                    │
 │  ┌──────▼──────┐  ┌──────▼───────┐  ┌─────────────────────┐  │
@@ -192,7 +192,8 @@ npm run dev
 
 | Role | Email | Password |
 |:---|:---|:---|
-| Admin | `admin@example.com` | `password123` |
+| Admin | `admin@bloom.com` | `password123` |
+| Customer | `customer@bloom.com` | `password123` |
 
 <br />
 
