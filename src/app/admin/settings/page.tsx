@@ -101,13 +101,13 @@ export default function AdminSettingsPage() {
         <form onSubmit={handleSaveInfo} className="space-y-4">
           <Input
             id="bname"
-            label="店舗名"
+            label={t("shopName")}
             value={business.name}
             onChange={(e) => setBusiness({ ...business, name: e.target.value })}
           />
           <div>
             <label htmlFor="bdesc" className="block text-sm font-medium mb-1">
-              説明
+              {t("description")}
             </label>
             <textarea
               id="bdesc"
@@ -119,33 +119,33 @@ export default function AdminSettingsPage() {
           </div>
           <Input
             id="address"
-            label="住所"
+            label={t("address")}
             value={business.address || ""}
             onChange={(e) => setBusiness({ ...business, address: e.target.value })}
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
               id="bphone"
-              label="電話番号"
+              label={t("phone")}
               value={business.phone || ""}
               onChange={(e) => setBusiness({ ...business, phone: e.target.value })}
             />
             <Input
               id="bemail"
-              label="メールアドレス"
+              label={t("email")}
               type="email"
               value={business.email || ""}
               onChange={(e) => setBusiness({ ...business, email: e.target.value })}
             />
           </div>
           <Button type="submit" disabled={saving}>
-            {saving ? "保存中..." : "情報を保存"}
+            {saving ? tCommon("saving") : t("saveInfo")}
           </Button>
         </form>
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-navy mb-4">営業時間</h2>
+        <h2 className="text-lg font-semibold text-navy mb-4">{t("businessHours")}</h2>
         <HoursForm initial={business.businessHours} onSave={handleSaveHours} />
       </Card>
     </div>
