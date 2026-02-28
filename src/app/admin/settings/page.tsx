@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,9 @@ interface BusinessData {
 }
 
 export default function AdminSettingsPage() {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
   const [business, setBusiness] = useState<BusinessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -50,7 +54,7 @@ export default function AdminSettingsPage() {
     });
 
     if (res.ok) {
-      setSuccess("ビジネス情報を保存しました");
+      setSuccess(t("savedBusiness"));
       setTimeout(() => setSuccess(""), 3000);
     }
     setSaving(false);
@@ -64,7 +68,7 @@ export default function AdminSettingsPage() {
     });
 
     if (res.ok) {
-      setSuccess("営業時間を保存しました");
+      setSuccess(t("savedHours"));
       setTimeout(() => setSuccess(""), 3000);
     }
   }
@@ -82,8 +86,8 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-navy">設定</h1>
-        <p className="text-muted-foreground text-sm mt-1">ビジネス情報と営業時間</p>
+        <h1 className="text-2xl font-bold text-navy">{t("title")}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t("subtitle")}</p>
       </div>
 
       {success && (
@@ -93,7 +97,7 @@ export default function AdminSettingsPage() {
       )}
 
       <Card>
-        <h2 className="text-lg font-semibold text-navy mb-4">ビジネス情報</h2>
+        <h2 className="text-lg font-semibold text-navy mb-4">{t("businessInfo")}</h2>
         <form onSubmit={handleSaveInfo} className="space-y-4">
           <Input
             id="bname"

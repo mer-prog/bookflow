@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { StepIndicator } from "@/components/booking/step-indicator";
@@ -15,6 +16,8 @@ import type { ServiceWithStaff } from "@/types";
 
 export default function BookPage() {
   const router = useRouter();
+  const t = useTranslations("booking");
+  const tc = useTranslations("common");
   const [step, setStep] = useState(1);
   const [services, setServices] = useState<ServiceWithStaff[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +82,7 @@ export default function BookPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "予約に失敗しました");
+        setError(data.error || t("bookingError"));
         setSubmitting(false);
         return;
       }
@@ -87,7 +90,7 @@ export default function BookPage() {
       const booking = await res.json();
       router.push(`/booking/${booking.id}`);
     } catch {
-      setError("予約に失敗しました。もう一度お試しください。");
+      setError(t("bookingErrorRetry"));
       setSubmitting(false);
     }
   }
@@ -156,7 +159,7 @@ export default function BookPage() {
           <div className="flex justify-between mt-6 pt-4 border-t border-border">
             {step > 1 ? (
               <Button variant="outline" onClick={() => setStep(step - 1)}>
-                戻る
+                {tc("back")}
               </Button>
             ) : (
               <div />
@@ -168,7 +171,7 @@ export default function BookPage() {
                 disabled={!canNext()}
                 onClick={() => setStep(step + 1)}
               >
-                次へ
+                {tc("next")}
               </Button>
             ) : (
               <Button
@@ -176,7 +179,7 @@ export default function BookPage() {
                 disabled={submitting}
                 onClick={handleSubmit}
               >
-                {submitting ? "予約中..." : "予約を確定する"}
+                {submitting ? t("submitting") : t("submitBooking")}
               </Button>
             )}
           </div>

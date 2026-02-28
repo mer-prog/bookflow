@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarView } from "@/components/admin/calendar-view";
@@ -8,6 +9,8 @@ import { cn } from "@/lib/utils";
 import type { BookingWithRelations } from "@/types";
 
 export default function AdminCalendarPage() {
+  const t = useTranslations("calendar");
+  const locale = useLocale();
   const [bookings, setBookings] = useState<BookingWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
@@ -36,9 +39,9 @@ export default function AdminCalendarPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-navy">カレンダー</h1>
+          <h1 className="text-2xl font-bold text-navy">{t("title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {viewDate.toLocaleDateString("ja-JP", {
+            {viewDate.toLocaleDateString(locale === "en" ? "en-US" : "ja-JP", {
               year: "numeric",
               month: "long",
             })}
@@ -53,7 +56,7 @@ export default function AdminCalendarPage() {
                 view === "week" ? "bg-navy text-white" : "bg-white text-muted-foreground hover:bg-muted"
               )}
             >
-              週
+              {t("week")}
             </button>
             <button
               onClick={() => setView("day")}
@@ -62,11 +65,11 @@ export default function AdminCalendarPage() {
                 view === "day" ? "bg-navy text-white" : "bg-white text-muted-foreground hover:bg-muted"
               )}
             >
-              日
+              {t("day")}
             </button>
           </div>
           <Button variant="outline" size="sm" onClick={() => setViewDate(new Date())}>
-            今日
+            {t("today")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => navigateDate(-1)}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

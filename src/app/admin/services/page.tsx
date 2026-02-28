@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,9 @@ interface ServiceData {
 }
 
 export default function AdminServicesPage() {
+  const t = useTranslations("services");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -76,22 +80,22 @@ export default function AdminServicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-navy">サービス管理</h1>
+          <h1 className="text-2xl font-bold text-navy">{t("title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {services.length}件のサービス
+            {t("count", { count: services.length })}
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>新規追加</Button>
+        <Button onClick={() => setShowForm(true)}>{t("addNew")}</Button>
       </div>
 
-      <Modal open={showForm} onClose={() => setShowForm(false)} title="サービスを追加">
+      <Modal open={showForm} onClose={() => setShowForm(false)} title={t("addTitle")}>
         <ServiceForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
       </Modal>
 
       <Modal
         open={!!editing}
         onClose={() => setEditing(null)}
-        title="サービスを編集"
+        title={t("editTitle")}
       >
         {editing && (
           <ServiceForm
@@ -120,27 +124,27 @@ export default function AdminServicesPage() {
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-navy">{service.name}</h3>
                   <Badge variant={service.active ? "success" : "default"}>
-                    {service.active ? "有効" : "無効"}
+                    {service.active ? t("active") : t("inactive")}
                   </Badge>
                 </div>
                 {service.description && (
                   <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
                 )}
                 <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  <span>{formatDuration(service.duration)}</span>
+                  <span>{formatDuration(service.duration, locale)}</span>
                   <span>{formatPrice(service.price)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setEditing(service)}>
-                  編集
+                  {tCommon("edit")}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleActive(service.id, service.active)}
                 >
-                  {service.active ? "無効化" : "有効化"}
+                  {service.active ? t("deactivate") : t("activate")}
                 </Button>
               </div>
             </Card>

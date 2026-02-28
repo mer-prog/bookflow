@@ -4,12 +4,15 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +30,7 @@ export default function RegisterPage() {
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error || "登録に失敗しました");
+      setError(data.error || t("registerError"));
       setLoading(false);
       return;
     }
@@ -41,7 +44,7 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("自動ログインに失敗しました。ログインページからお試しください。");
+      setError(t("autoLoginError"));
     } else {
       router.push("/");
       router.refresh();
@@ -50,6 +53,9 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-muted flex items-center justify-center px-4">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle variant="header" />
+      </div>
       <Card className="w-full max-w-md">
         <div className="text-center mb-6">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
@@ -57,9 +63,9 @@ export default function RegisterPage() {
               <span className="text-white font-bold">B</span>
             </div>
           </Link>
-          <h1 className="text-2xl font-bold text-navy">新規登録</h1>
+          <h1 className="text-2xl font-bold text-navy">{t("registerTitle")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            BookFlowアカウントを作成
+            {t("registerSubtitle")}
           </p>
         </div>
 
@@ -72,15 +78,15 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             id="name"
-            label="お名前"
-            placeholder="山田太郎"
+            label={t("name")}
+            placeholder={t("namePlaceholder")}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
           />
           <Input
             id="email"
-            label="メールアドレス"
+            label={t("email")}
             type="email"
             placeholder="example@email.com"
             value={form.email}
@@ -89,31 +95,31 @@ export default function RegisterPage() {
           />
           <Input
             id="phone"
-            label="電話番号"
+            label={t("phone")}
             type="tel"
-            placeholder="090-1234-5678"
+            placeholder={t("phonePlaceholder")}
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
           <Input
             id="password"
-            label="パスワード"
+            label={t("password")}
             type="password"
-            placeholder="8文字以上"
+            placeholder={t("passwordPlaceholder")}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
             minLength={8}
           />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "登録中..." : "アカウント作成"}
+            {loading ? t("registering") : t("createAccount")}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          既にアカウントをお持ちの方は{" "}
+          {t("hasAccount")}{" "}
           <Link href="/login" className="text-mint hover:underline font-medium">
-            ログイン
+            {t("loginLink")}
           </Link>
         </p>
       </Card>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 interface ServiceData {
   id?: string;
@@ -19,6 +20,8 @@ interface Props {
 }
 
 export function ServiceForm({ initial, onSubmit, onCancel }: Props) {
+  const t = useTranslations("services");
+  const tCommon = useTranslations("common");
   const [form, setForm] = useState<ServiceData>(
     initial || { name: "", description: "", duration: "60", price: "5000" }
   );
@@ -35,14 +38,14 @@ export function ServiceForm({ initial, onSubmit, onCancel }: Props) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
         id="name"
-        label="サービス名"
+        label={t("serviceName")}
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
         required
       />
       <div>
         <label htmlFor="desc" className="block text-sm font-medium text-foreground mb-1">
-          説明
+          {t("description")}
         </label>
         <textarea
           id="desc"
@@ -55,7 +58,7 @@ export function ServiceForm({ initial, onSubmit, onCancel }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <Input
           id="duration"
-          label="所要時間（分）"
+          label={t("duration")}
           type="number"
           value={form.duration}
           onChange={(e) => setForm({ ...form, duration: e.target.value })}
@@ -63,7 +66,7 @@ export function ServiceForm({ initial, onSubmit, onCancel }: Props) {
         />
         <Input
           id="price"
-          label="料金（円）"
+          label={t("priceYen")}
           type="number"
           value={form.price}
           onChange={(e) => setForm({ ...form, price: e.target.value })}
@@ -72,10 +75,10 @@ export function ServiceForm({ initial, onSubmit, onCancel }: Props) {
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          キャンセル
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "保存中..." : initial?.id ? "更新" : "追加"}
+          {loading ? tCommon("saving") : initial?.id ? t("update") : t("add")}
         </Button>
       </div>
     </form>

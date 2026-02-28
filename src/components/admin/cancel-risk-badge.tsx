@@ -1,6 +1,7 @@
 "use client";
 
-import { cn, RISK_LABELS, RISK_COLORS } from "@/lib/utils";
+import { cn, RISK_COLORS } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface Props {
   risk: string;
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export function CancelRiskBadge({ risk, className }: Props) {
+  const tRisk = useTranslations("risk");
+
   return (
     <span
       className={cn(
@@ -21,7 +24,7 @@ export function CancelRiskBadge({ risk, className }: Props) {
           <path d="M6 2v4M6 8v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       )}
-      {RISK_LABELS[risk] || risk}
+      {tRisk(risk)}
     </span>
   );
 }

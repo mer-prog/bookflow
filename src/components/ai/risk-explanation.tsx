@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Modal } from "@/components/ui/modal";
-import { RISK_LABELS } from "@/lib/utils";
 
 interface Props {
   bookingId: string;
@@ -10,6 +10,9 @@ interface Props {
 }
 
 export function RiskExplanation({ bookingId, risk }: Props) {
+  const t = useTranslations("ai");
+  const tRisk = useTranslations("risk");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [explanation, setExplanation] = useState("");
   const [factors, setFactors] = useState<string[]>([]);
@@ -25,14 +28,14 @@ export function RiskExplanation({ bookingId, risk }: Props) {
       const res = await fetch("/api/ai/cancel-risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId }),
+        body: JSON.stringify({ bookingId, locale }),
       });
       const data = await res.json();
       setExplanation(data.explanation);
       setFactors(data.factors || []);
       setSuggestedAction(data.suggestedAction || "");
     } catch {
-      setExplanation("リスク分析の取得に失敗しました。");
+      setExplanation(t("analysisFailed"));
     }
     setLoading(false);
   }
@@ -42,7 +45,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
       <button
         onClick={fetchExplanation}
         className="p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-        title="AI分析を表示"
+        title={t("showAnalysis")}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="6" stroke="#1E3A5F" strokeWidth="1.5" />
@@ -50,16 +53,16 @@ export function RiskExplanation({ bookingId, risk }: Props) {
         </svg>
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="AIリスク分析">
+      <Modal open={open} onClose={() => setOpen(false)} title={t("riskAnalysis")}>
         {loading ? (
           <div className="flex items-center gap-3 py-8 justify-center">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-mint" />
-            <span className="text-muted-foreground">AI分析中...</span>
+            <span className="text-muted-foreground">{t("analyzing")}</span>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">リスクレベル:</span>
+              <span className="text-sm font-medium">{t("riskLevel")}</span>
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   risk === "HIGH"
@@ -69,13 +72,13 @@ export function RiskExplanation({ bookingId, risk }: Props) {
                       : "bg-green-100 text-green-800"
                 }`}
               >
-                {RISK_LABELS[risk] || risk}
+                {tRisk(risk as "LOW" | "MEDIUM" | "HIGH")}
               </span>
             </div>
 
             {factors.length > 0 && (
               <div>
-                <p className="text-sm font-medium mb-2">リスク要因:</p>
+                <p className="text-sm font-medium mb-2">{t("riskFactors")}</p>
                 <ul className="space-y-1">
                   {factors.map((factor, i) => (
                     <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
@@ -92,7 +95,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M8 1l2.5 5 5.5.8-4 3.9.9 5.3L8 13.3 3.1 16l.9-5.3-4-3.9 5.5-.8z" fill="#4ECDC4" />
                 </svg>
-                <span className="text-sm font-medium text-navy">AIコメント</span>
+                <span className="text-sm font-medium text-navy">{t("aiComment")}</span>
               </div>
               <p className="text-sm text-foreground leading-relaxed">{explanation}</p>
             </div>
@@ -104,7 +107,7 @@ export function RiskExplanation({ bookingId, risk }: Props) {
                     <path d="M8 1v6l3 3" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="8" cy="8" r="6.5" stroke="#2563eb" strokeWidth="1.5" />
                   </svg>
-                  <span className="text-sm font-medium text-blue-800">推奨アクション</span>
+                  <span className="text-sm font-medium text-blue-800">{t("suggestedAction")}</span>
                 </div>
                 <p className="text-sm text-blue-700 leading-relaxed">{suggestedAction}</p>
               </div>

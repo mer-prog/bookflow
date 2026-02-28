@@ -1,15 +1,18 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-const steps = [
-  { label: "サービス選択", step: 1 },
-  { label: "日時選択", step: 2 },
-  { label: "情報入力", step: 3 },
-  { label: "確認", step: 4 },
-];
-
 export function StepIndicator({ currentStep }: { currentStep: number }) {
+  const t = useTranslations("booking");
+
+  const steps = [
+    { label: t("step1"), step: 1 },
+    { label: t("step2"), step: 2 },
+    { label: t("step3"), step: 3 },
+    { label: t("step4"), step: 4 },
+  ];
+
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
       {steps.map((s, i) => (

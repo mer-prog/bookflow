@@ -1,12 +1,16 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { STATUS_LABELS, STATUS_COLORS, timeToMinutes } from "@/lib/utils";
+import { STATUS_COLORS, timeToMinutes, formatTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "next-intl";
 import type { BookingWithRelations } from "@/types";
 
 export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }) {
+  const t = useTranslations("dashboard");
+  const tStatus = useTranslations("status");
+  const locale = useLocale();
+
   const sorted = [...bookings].sort(
     (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
   );
@@ -14,15 +18,15 @@ export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }
   if (bookings.length === 0) {
     return (
       <Card>
-        <h3 className="text-lg font-semibold text-navy mb-4">今日の予約</h3>
-        <p className="text-muted-foreground text-sm">今日の予約はありません</p>
+        <h3 className="text-lg font-semibold text-navy mb-4">{t("todayBookings")}</h3>
+        <p className="text-muted-foreground text-sm">{t("noBookingsToday")}</p>
       </Card>
     );
   }
 
   return (
     <Card>
-      <h3 className="text-lg font-semibold text-navy mb-4">今日の予約</h3>
+      <h3 className="text-lg font-semibold text-navy mb-4">{t("todayBookings")}</h3>
       <div className="space-y-3">
         {sorted.map((booking) => (
           <div
@@ -31,8 +35,8 @@ export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }
           >
             <div className="flex items-center gap-3">
               <div className="text-center min-w-[60px]">
-                <p className="text-lg font-bold text-navy">{booking.startTime}</p>
-                <p className="text-xs text-muted-foreground">{booking.endTime}</p>
+                <p className="text-lg font-bold text-navy">{formatTime(booking.startTime, locale)}</p>
+                <p className="text-xs text-muted-foreground">{formatTime(booking.endTime, locale)}</p>
               </div>
               <div>
                 <p className="font-medium">{booking.customerName}</p>
@@ -47,7 +51,7 @@ export function TodayBookings({ bookings }: { bookings: BookingWithRelations[] }
                 STATUS_COLORS[booking.status]
               )}
             >
-              {STATUS_LABELS[booking.status]}
+              {tStatus(booking.status)}
             </span>
           </div>
         ))}

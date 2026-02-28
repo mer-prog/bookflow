@@ -4,12 +4,15 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +32,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("メールアドレスまたはパスワードが正しくありません");
+      setError(t("loginError"));
     } else {
       router.push("/admin");
       router.refresh();
@@ -38,6 +41,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-muted flex items-center justify-center px-4">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle variant="header" />
+      </div>
       <Card className="w-full max-w-md">
         <div className="text-center mb-6">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
@@ -45,9 +51,9 @@ export default function LoginPage() {
               <span className="text-white font-bold">B</span>
             </div>
           </Link>
-          <h1 className="text-2xl font-bold text-navy">ログイン</h1>
+          <h1 className="text-2xl font-bold text-navy">{t("loginTitle")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            BookFlowアカウントにログイン
+            {t("loginSubtitle")}
           </p>
         </div>
 
@@ -60,7 +66,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             id="email"
-            label="メールアドレス"
+            label={t("email")}
             type="email"
             placeholder="admin@bloom.com"
             value={email}
@@ -69,7 +75,7 @@ export default function LoginPage() {
           />
           <Input
             id="password"
-            label="パスワード"
+            label={t("password")}
             type="password"
             placeholder="••••••••"
             value={password}
@@ -77,20 +83,20 @@ export default function LoginPage() {
             required
           />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "ログイン中..." : "ログイン"}
+            {loading ? t("loggingIn") : t("loginButton")}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          アカウントをお持ちでない方は{" "}
+          {t("noAccount")}{" "}
           <Link href="/register" className="text-mint hover:underline font-medium">
-            新規登録
+            {t("registerLink")}
           </Link>
         </p>
 
         <div className="mt-6 pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground text-center">
-            デモ: admin@bloom.com / password123
+            {t("demo")}
           </p>
         </div>
       </Card>

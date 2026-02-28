@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CancelRiskBadge } from "./cancel-risk-badge";
 import { RiskExplanation } from "@/components/ai/risk-explanation";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShort } from "@/lib/utils";
 import type { BookingWithRelations } from "@/types";
 
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
@@ -27,6 +29,8 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
 export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] }) {
   const [sentReminders, setSentReminders] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
 
   const atRisk = bookings.filter(
     (b) => b.cancelRisk !== "LOW" && b.status !== "CANCELLED" && b.status !== "COMPLETED" && b.status !== "NO_SHOW"
@@ -34,15 +38,15 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
 
   function handleSendReminder(bookingId: string, customerName: string) {
     setSentReminders((prev) => new Set(prev).add(bookingId));
-    setToast(`${customerName}にリマインドを送信しました`);
+    setToast(t("reminderToast", { name: customerName }));
     setTimeout(() => setToast(null), 3000);
   }
 
   if (atRisk.length === 0) {
     return (
       <Card>
-        <h3 className="text-lg font-semibold text-navy mb-4">要注意予約</h3>
-        <p className="text-muted-foreground text-sm">現在、要注意の予約はありません</p>
+        <h3 className="text-lg font-semibold text-navy mb-4">{t("atRiskTitle")}</h3>
+        <p className="text-muted-foreground text-sm">{t("noAtRisk")}</p>
       </Card>
     );
   }
@@ -51,9 +55,9 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
     <>
       <Card>
         <div className="flex items-center gap-2 mb-4">
-          <h3 className="text-lg font-semibold text-navy">要注意予約</h3>
+          <h3 className="text-lg font-semibold text-navy">{t("atRiskTitle")}</h3>
           <span className="bg-red-100 text-red-800 text-xs font-medium rounded-full px-2 py-0.5">
-            {atRisk.length}件
+            {atRisk.length}
           </span>
         </div>
         <div className="space-y-3">
@@ -65,7 +69,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
               <div className="flex items-center gap-3">
                 <div className="text-center min-w-[60px]">
                   <p className="text-sm font-bold text-navy">
-                    {new Date(booking.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}
+                    {formatDateShort(booking.date, locale)}
                   </p>
                   <p className="text-xs text-muted-foreground">{booking.startTime}</p>
                 </div>
@@ -80,7 +84,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
                 <CancelRiskBadge risk={booking.cancelRisk} />
                 {sentReminders.has(booking.id) ? (
                   <Button size="sm" variant="outline" disabled className="text-green-600 border-green-200">
-                    送信済 ✓
+                    {t("reminderSent")}
                   </Button>
                 ) : (
                   <Button
@@ -88,7 +92,7 @@ export function AtRiskBookings({ bookings }: { bookings: BookingWithRelations[] 
                     variant="outline"
                     onClick={() => handleSendReminder(booking.id, booking.customerName)}
                   >
-                    リマインド送信
+                    {t("sendReminder")}
                   </Button>
                 )}
                 <RiskExplanation bookingId={booking.id} risk={booking.cancelRisk} />
