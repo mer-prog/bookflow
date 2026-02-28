@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { StatsCards } from "@/components/admin/stats-cards";
 import { TodayBookings } from "@/components/admin/today-bookings";
 import { AtRiskBookings } from "@/components/admin/at-risk-bookings";
@@ -8,6 +9,8 @@ import { CancelRateChart } from "@/components/admin/cancel-rate-chart";
 import type { DashboardStats, BookingWithRelations } from "@/types";
 
 export default function AdminDashboard() {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [stats, setStats] = useState<DashboardStats>({
     todayBookings: 0,
     weekBookings: 0,
@@ -49,9 +52,9 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-navy">ダッシュボード</h1>
+        <h1 className="text-2xl font-bold text-navy">{t("title")}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {new Date().toLocaleDateString("ja-JP", {
+          {new Date().toLocaleDateString(locale === "en" ? "en-US" : "ja-JP", {
             year: "numeric",
             month: "long",
             day: "numeric",

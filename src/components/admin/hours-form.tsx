@@ -2,17 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import type { BusinessHours } from "@/types";
 
-const days = [
-  { key: "monday", label: "月曜日" },
-  { key: "tuesday", label: "火曜日" },
-  { key: "wednesday", label: "水曜日" },
-  { key: "thursday", label: "木曜日" },
-  { key: "friday", label: "金曜日" },
-  { key: "saturday", label: "土曜日" },
-  { key: "sunday", label: "日曜日" },
-];
+const dayKeys = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 
 interface Props {
   initial: BusinessHours;
@@ -20,6 +13,8 @@ interface Props {
 }
 
 export function HoursForm({ initial, onSave }: Props) {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
   const [hours, setHours] = useState<BusinessHours>(initial);
   const [saving, setSaving] = useState(false);
 
@@ -38,49 +33,49 @@ export function HoursForm({ initial, onSave }: Props) {
 
   return (
     <div className="space-y-4">
-      {days.map((day) => {
-        const dayHours = hours[day.key] || { open: "09:00", close: "18:00", closed: false };
+      {dayKeys.map((key) => {
+        const dayHours = hours[key] || { open: "09:00", close: "18:00", closed: false };
         return (
           <div
-            key={day.key}
+            key={key}
             className="flex items-center gap-4 p-3 rounded-lg bg-muted"
           >
-            <div className="w-20 font-medium text-sm">{day.label}</div>
+            <div className="w-20 font-medium text-sm">{t(`days.${key}`)}</div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={!dayHours.closed}
-                onChange={(e) => updateDay(day.key, "closed", !e.target.checked)}
+                onChange={(e) => updateDay(key, "closed", !e.target.checked)}
                 className="rounded border-border"
               />
-              <span className="text-sm text-muted-foreground">営業</span>
+              <span className="text-sm text-muted-foreground">{t("open")}</span>
             </label>
             {!dayHours.closed && (
               <>
                 <input
                   type="time"
                   value={dayHours.open}
-                  onChange={(e) => updateDay(day.key, "open", e.target.value)}
+                  onChange={(e) => updateDay(key, "open", e.target.value)}
                   className="rounded-lg border border-border bg-white px-2 py-1 text-sm"
                 />
-                <span className="text-muted-foreground">〜</span>
+                <span className="text-muted-foreground">~</span>
                 <input
                   type="time"
                   value={dayHours.close}
-                  onChange={(e) => updateDay(day.key, "close", e.target.value)}
+                  onChange={(e) => updateDay(key, "close", e.target.value)}
                   className="rounded-lg border border-border bg-white px-2 py-1 text-sm"
                 />
               </>
             )}
             {dayHours.closed && (
-              <span className="text-sm text-muted-foreground">定休日</span>
+              <span className="text-sm text-muted-foreground">{t("closedDay")}</span>
             )}
           </div>
         );
       })}
       <div className="pt-4">
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "保存中..." : "営業時間を保存"}
+          {saving ? tCommon("saving") : t("saveHours")}
         </Button>
       </div>
     </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { cn, STATUS_LABELS, STATUS_COLORS, formatPrice } from "@/lib/utils";
+import { cn, STATUS_COLORS, formatPrice, formatDateShort, formatTimeRange } from "@/lib/utils";
 import { CancelRiskBadge } from "./cancel-risk-badge";
 import { RiskExplanation } from "@/components/ai/risk-explanation";
+import { useTranslations, useLocale } from "next-intl";
 import type { BookingWithRelations } from "@/types";
 
 interface Props {
@@ -11,10 +12,14 @@ interface Props {
 }
 
 export function BookingTable({ bookings, onStatusChange }: Props) {
+  const t = useTranslations("bookingList");
+  const tStatus = useTranslations("status");
+  const locale = useLocale();
+
   if (bookings.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        予約がありません
+        {t("noBookings")}
       </div>
     );
   }
@@ -24,14 +29,14 @@ export function BookingTable({ bookings, onStatusChange }: Props) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border">
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">日時</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">顧客</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">サービス</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">担当</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">料金</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">ステータス</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">リスク</th>
-            <th className="text-left py-3 px-4 font-medium text-muted-foreground">操作</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("dateTime")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("customer")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("service")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("staff")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("price")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("statusLabel")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("risk")}</th>
+            <th className="text-left py-3 px-4 font-medium text-muted-foreground">{t("actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -40,13 +45,10 @@ export function BookingTable({ bookings, onStatusChange }: Props) {
               <td className="py-3 px-4">
                 <div>
                   <p className="font-medium">
-                    {new Date(booking.date).toLocaleDateString("ja-JP", {
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    {formatDateShort(booking.date, locale)}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {booking.startTime}〜{booking.endTime}
+                    {formatTimeRange(booking.startTime, booking.endTime, locale)}
                   </p>
                 </div>
               </td>
@@ -64,7 +66,7 @@ export function BookingTable({ bookings, onStatusChange }: Props) {
                     STATUS_COLORS[booking.status]
                   )}
                 >
-                  {STATUS_LABELS[booking.status]}
+                  {tStatus(booking.status)}
                 </span>
               </td>
               <td className="py-3 px-4">
@@ -80,14 +82,14 @@ export function BookingTable({ bookings, onStatusChange }: Props) {
                       onClick={() => onStatusChange(booking.id, "CONFIRMED")}
                       className="text-xs text-mint hover:underline cursor-pointer"
                     >
-                      確定
+                      {t("actionConfirm")}
                     </button>
                     <span className="text-muted-foreground">|</span>
                     <button
                       onClick={() => onStatusChange(booking.id, "CANCELLED")}
                       className="text-xs text-destructive hover:underline cursor-pointer"
                     >
-                      取消
+                      {t("actionCancel")}
                     </button>
                   </div>
                 )}
@@ -96,7 +98,7 @@ export function BookingTable({ bookings, onStatusChange }: Props) {
                     onClick={() => onStatusChange(booking.id, "COMPLETED")}
                     className="text-xs text-green-600 hover:underline cursor-pointer"
                   >
-                    完了
+                    {t("actionComplete")}
                   </button>
                 )}
               </td>

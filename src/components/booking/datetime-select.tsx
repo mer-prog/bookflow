@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { TimeSlotOption } from "@/types";
 
@@ -25,6 +26,8 @@ export function DatetimeSelect({
   onSelectStaff,
   staff,
 }: Props) {
+  const t = useTranslations("booking");
+  const locale = useLocale();
   const [slots, setSlots] = useState<TimeSlotOption[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -52,18 +55,18 @@ export function DatetimeSelect({
 
   const formatDateLabel = (dateStr: string) => {
     const d = new Date(dateStr + "T00:00:00");
-    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-    return `${d.getMonth() + 1}/${d.getDate()}(${weekdays[d.getDay()]})`;
+    const weekday = t(`weekdaysShort.${d.getDay()}`);
+    return `${d.getMonth() + 1}/${d.getDate()}(${weekday})`;
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-navy mb-4">日時を選択</h2>
+      <h2 className="text-xl font-semibold text-navy mb-4">{t("selectDateTime")}</h2>
 
       {/* Staff selection */}
       {staff.length > 0 && (
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">担当スタッフ</label>
+          <label className="block text-sm font-medium mb-2">{t("selectStaff")}</label>
           <div className="flex flex-wrap gap-2">
             {staff.map((s) => (
               <button
@@ -85,7 +88,7 @@ export function DatetimeSelect({
 
       {/* Date selection */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">日付</label>
+        <label className="block text-sm font-medium mb-2">{t("selectDate")}</label>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {dates.map((date) => (
             <button
@@ -110,14 +113,14 @@ export function DatetimeSelect({
       {/* Time slots */}
       {selectedDate && staffId && (
         <div>
-          <label className="block text-sm font-medium mb-2">時間帯</label>
+          <label className="block text-sm font-medium mb-2">{t("selectTime")}</label>
           {loading ? (
             <div className="flex items-center gap-2 text-muted-foreground py-4">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-mint" />
-              空き状況を確認中...
+              {t("checkingAvailability")}
             </div>
           ) : slots.length === 0 ? (
-            <p className="text-muted-foreground py-4">この日は空きがありません</p>
+            <p className="text-muted-foreground py-4">{t("noSlots")}</p>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
               {slots

@@ -1,4 +1,10 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export function Footer() {
+  const t = useTranslations("footer");
+
   return (
     <footer className="bg-navy text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,20 +17,20 @@ export function Footer() {
               <span className="text-xl font-bold">BookFlow</span>
             </div>
             <p className="text-white/70 text-sm">
-              スマートな予約管理で、ビジネスを効率化。
+              {t("tagline")}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">サービス</h4>
+            <h4 className="font-semibold mb-3">{t("services")}</h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li>オンライン予約</li>
-              <li>スケジュール管理</li>
-              <li>顧客管理</li>
-              <li>AI分析</li>
+              <li>{t("onlineBooking")}</li>
+              <li>{t("scheduleManagement")}</li>
+              <li>{t("customerManagement")}</li>
+              <li>{t("aiAnalytics")}</li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-3">お問い合わせ</h4>
+            <h4 className="font-semibold mb-3">{t("contact")}</h4>
             <ul className="space-y-2 text-sm text-white/70">
               <li>support@bookflow.jp</li>
               <li>03-1234-5678</li>
@@ -32,7 +38,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/50">
-          &copy; 2026 BookFlow. All rights reserved.
+          {t("copyright")}
         </div>
       </div>
     </footer>

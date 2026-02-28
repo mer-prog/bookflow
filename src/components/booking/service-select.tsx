@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations, useLocale } from "next-intl";
 import { cn, formatPrice, formatDuration } from "@/lib/utils";
 import type { ServiceWithStaff } from "@/types";
 
@@ -10,9 +11,12 @@ interface Props {
 }
 
 export function ServiceSelect({ services, selectedId, onSelect }: Props) {
+  const t = useTranslations("booking");
+  const locale = useLocale();
+
   return (
     <div>
-      <h2 className="text-xl font-semibold text-navy mb-4">サービスを選択</h2>
+      <h2 className="text-xl font-semibold text-navy mb-4">{t("selectService")}</h2>
       <div className="grid gap-3">
         {services.map((service) => (
           <button
@@ -34,9 +38,9 @@ export function ServiceSelect({ services, selectedId, onSelect }: Props) {
                   </p>
                 )}
                 <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                  <span>{formatDuration(service.duration)}</span>
+                  <span>{formatDuration(service.duration, locale)}</span>
                   <span>•</span>
-                  <span>担当: {service.staffServices.map((ss) => ss.staff.name).join(", ")}</span>
+                  <span>{t("staffLabel")} {service.staffServices.map((ss) => ss.staff.name).join(", ")}</span>
                 </div>
               </div>
               <div className="text-lg font-bold text-navy">

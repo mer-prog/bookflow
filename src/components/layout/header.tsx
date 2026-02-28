@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 
 export function Header() {
   const { data: session } = useSession();
+  const t = useTranslations("header");
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-40">
@@ -20,30 +23,31 @@ export function Header() {
 
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/book" className="text-sm text-muted-foreground hover:text-navy transition-colors">
-              予約する
+              {t("booking")}
             </Link>
             {session ? (
               <>
                 {(session.user as Record<string, unknown>).role === "ADMIN" && (
                   <Link href="/admin" className="text-sm text-muted-foreground hover:text-navy transition-colors">
-                    管理画面
+                    {t("admin")}
                   </Link>
                 )}
                 <span className="text-sm text-muted-foreground">{session.user?.name}</span>
                 <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/" })}>
-                  ログアウト
+                  {t("logout")}
                 </Button>
               </>
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="outline" size="sm">ログイン</Button>
+                  <Button variant="outline" size="sm">{t("login")}</Button>
                 </Link>
                 <Link href="/register">
-                  <Button variant="primary" size="sm">新規登録</Button>
+                  <Button variant="primary" size="sm">{t("register")}</Button>
                 </Link>
               </>
             )}
+            <LanguageToggle variant="header" />
           </nav>
         </div>
       </div>

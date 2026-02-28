@@ -1,6 +1,7 @@
 "use client";
 
-import { cn, getWeekDates, isSameDay, STATUS_COLORS, STATUS_LABELS } from "@/lib/utils";
+import { cn, getWeekDates, isSameDay } from "@/lib/utils";
+import { useTranslations, useLocale } from "next-intl";
 import type { BookingWithRelations } from "@/types";
 
 interface Props {
@@ -12,8 +13,10 @@ interface Props {
 const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8:00 - 19:00
 
 export function CalendarView({ bookings, viewDate, view }: Props) {
-  const dates = view === "week" ? getWeekDates(viewDate) : [viewDate];
-  const weekdays = ["月", "火", "水", "木", "金", "土", "日"];
+  const t = useTranslations("calendar");
+  const tSettings = useTranslations("settings");
+  const locale = useLocale();
+  const dates = view === "week" ? getWeekDates(viewDate, locale) : [viewDate];
   const today = new Date();
 
   function getBookingsForDateAndHour(date: Date, hour: number) {
@@ -42,7 +45,9 @@ export function CalendarView({ bookings, viewDate, view }: Props) {
                 )}
               >
                 <p className={cn("text-xs", isSunday ? "text-gray-400" : "text-muted-foreground")}>
-                  {view === "week" ? weekdays[i] : date.toLocaleDateString("ja-JP", { weekday: "long" })}
+                  {view === "week"
+                    ? t(`weekdaysShort.${i}`)
+                    : date.toLocaleDateString(locale === "en" ? "en-US" : "ja-JP", { weekday: "long" })}
                 </p>
                 <p
                   className={cn(
@@ -53,7 +58,7 @@ export function CalendarView({ bookings, viewDate, view }: Props) {
                   {date.getDate()}
                 </p>
                 {isSunday && (
-                  <p className="text-[10px] text-gray-400 mt-0.5">定休日</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">{tSettings("closedDay")}</p>
                 )}
               </div>
             );

@@ -2,16 +2,20 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice, formatDuration, STATUS_LABELS } from "@/lib/utils";
+import { formatPrice, formatDuration, formatDateFull, formatTimeRange } from "@/lib/utils";
 import type { BookingWithRelations } from "@/types";
 
 export default function BookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslations("bookingDetail");
+  const ts = useTranslations("status");
+  const locale = useLocale();
   const [booking, setBooking] = useState<BookingWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
@@ -27,7 +31,7 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
   }, [id]);
 
   async function handleCancel() {
-    if (!confirm("予約をキャンセルしますか？")) return;
+    if (!confirm(t("cancelConfirm"))) return;
     setCancelling(true);
 
     const res = await fetch(`/api/bookings/${id}/cancel`, { method: "POST" });
@@ -54,9 +58,9 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
       <div className="min-h-screen bg-muted">
         <Header />
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold text-navy mb-4">予約が見つかりません</h1>
+          <h1 className="text-2xl font-bold text-navy mb-4">{t("notFound")}</h1>
           <Link href="/book">
-            <Button variant="primary">新しい予約をする</Button>
+            <Button variant="primary">{t("newBooking")}</Button>
           </Link>
         </div>
       </div>
@@ -87,41 +91,41 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
             )}
             <h1 className="text-2xl font-bold text-navy">
               {booking.status === "CONFIRMED"
-                ? "予約が確定しました"
+                ? t("confirmed")
                 : booking.status === "CANCELLED"
-                  ? "予約はキャンセルされました"
-                  : "予約詳細"}
+                  ? t("cancelled")
+                  : t("detail")}
             </h1>
             <Badge variant={statusVariant} className="mt-2">
-              {STATUS_LABELS[booking.status]}
+              {ts(booking.status)}
             </Badge>
           </div>
 
           <div className="space-y-4 bg-muted rounded-xl p-5">
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-sm text-muted-foreground">予約ID</span>
+              <span className="text-sm text-muted-foreground">{t("bookingId")}</span>
               <span className="text-sm font-mono">{booking.id.slice(0, 8)}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-sm text-muted-foreground">サービス</span>
+              <span className="text-sm text-muted-foreground">{t("service")}</span>
               <span className="font-medium">{booking.service.name}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-sm text-muted-foreground">担当</span>
+              <span className="text-sm text-muted-foreground">{t("staff")}</span>
               <span className="font-medium">{booking.staff.name}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-sm text-muted-foreground">日時</span>
+              <span className="text-sm text-muted-foreground">{t("dateTime")}</span>
               <span className="font-medium">
-                {new Date(booking.date).toLocaleDateString("ja-JP")} {booking.startTime}〜{booking.endTime}
+                {formatDateFull(booking.date, locale)} {formatTimeRange(booking.startTime, booking.endTime, locale)}
               </span>
             </div>
             <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-sm text-muted-foreground">所要時間</span>
-              <span className="font-medium">{formatDuration(booking.service.duration)}</span>
+              <span className="text-sm text-muted-foreground">{t("duration")}</span>
+              <span className="font-medium">{formatDuration(booking.service.duration, locale)}</span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-sm text-muted-foreground">料金</span>
+              <span className="text-sm text-muted-foreground">{t("price")}</span>
               <span className="font-bold text-navy">{formatPrice(booking.service.price)}</span>
             </div>
           </div>
@@ -134,12 +138,12 @@ export default function BookingDetailPage({ params }: { params: Promise<{ id: st
                 onClick={handleCancel}
                 disabled={cancelling}
               >
-                {cancelling ? "キャンセル中..." : "予約をキャンセル"}
+                {cancelling ? t("cancelling") : t("cancelBooking")}
               </Button>
             )}
             <Link href="/book" className="w-full">
               <Button variant="outline" className="w-full">
-                新しい予約をする
+                {t("newBooking")}
               </Button>
             </Link>
           </div>

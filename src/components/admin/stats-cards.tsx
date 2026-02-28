@@ -2,13 +2,16 @@
 
 import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import type { DashboardStats } from "@/types";
 
 export function StatsCards({ stats }: { stats: DashboardStats }) {
+  const t = useTranslations("dashboard");
+
   const items = [
     {
-      label: "今日の予約",
-      value: `${stats.todayBookings}件`,
+      label: t("todayBookings"),
+      value: `${stats.todayBookings}`,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -19,8 +22,8 @@ export function StatsCards({ stats }: { stats: DashboardStats }) {
       color: "text-mint bg-mint/10",
     },
     {
-      label: "今週の予約",
-      value: `${stats.weekBookings}件`,
+      label: t("weekBookings"),
+      value: `${stats.weekBookings}`,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M4 20l4-8 4 4 4-8 4 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -29,7 +32,7 @@ export function StatsCards({ stats }: { stats: DashboardStats }) {
       color: "text-blue-600 bg-blue-50",
     },
     {
-      label: "週間売上",
+      label: t("weekRevenue"),
       value: formatPrice(stats.totalRevenue),
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -40,7 +43,7 @@ export function StatsCards({ stats }: { stats: DashboardStats }) {
       color: "text-green-600 bg-green-50",
     },
     {
-      label: "キャンセル率",
+      label: t("cancelRate"),
       value: `${stats.cancelRate}%`,
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
