@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { SessionProvider } from "@/components/layout/session-provider";
+import { LocaleProvider } from "@/i18n/locale-context";
+import { LocaleSync } from "@/i18n/locale-sync";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,15 +18,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="ja">
+    <html lang={locale}>
       <body className="antialiased">
-        <SessionProvider>{children}</SessionProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <SessionProvider>
+            <LocaleProvider>
+              <LocaleSync />
+              {children}
+            </LocaleProvider>
+          </SessionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
