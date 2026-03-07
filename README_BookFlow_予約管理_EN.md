@@ -19,30 +19,13 @@
 
 | Skill | Implementation |
 |:---|:---|
-| **Full-Stack Development** | End-to-end implementation using Next.js 16 App Router — frontend, API routes, authentication, and database operations in a single codebase. Leverages React Server Components to eliminate the need for a BFF layer. |
-| **AI Integration (Claude API)** | Hybrid approach combining a 4-factor rule-based scoring engine (lead time, cancellation history, day of week, time of day) with Claude Haiku 4.5 for natural language risk explanation and action recommendation. Graceful fallback to rule-based templates when API key is not configured. |
+| **Full-Stack Development** | End-to-end implementation using Next.js 16 App Router — frontend, API routes, authentication, and database operations in a single codebase. Leverages React Server Components to eliminate the need for a BFF layer. Full Japanese/English internationalization with next-intl (Cookie/Accept-Language based locale resolution, dynamic switching without page reload, locale-aware date/time formatting). |
+| **AI/LLM Integration** | Hybrid approach combining a 4-factor rule-based scoring engine (lead time, cancellation history, day of week, time of day) with Claude Haiku 4.5 for natural language risk explanation and action recommendation. Graceful fallback to rule-based templates when API key is not configured. AI analysis supports both Japanese and English. |
 | **Authentication & Authorization** | NextAuth.js v5 with JWT sessions and role-based access control (ADMIN/CUSTOMER). Middleware-level route protection. Password hashing with bcryptjs at 12 salt rounds. |
-| **Database Design** | Normalized schema with 7 models using Prisma 7 ORM. Many-to-many relationship via StaffService junction table. Enum types for BookingStatus and CancelRisk. Compatible with Neon Serverless PostgreSQL. |
-| **Internationalization (i18n)** | Full Japanese/English language switching with next-intl. Accept-Language header auto-detection for public pages. Dual persistence via Cookie + localStorage. Dynamic switching without page reload. Locale-aware date/time formatting (24h vs 12h AM/PM, Monday vs Sunday week start). |
-| **UI/UX Design** | Design system built on Tailwind CSS 4 custom properties. 6 reusable UI components. 4-step guided booking wizard. Responsive dashboard and calendar views. |
-| **Security** | 5 security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy). Automatic SQL injection prevention via Prisma ORM. Whitelist-based field updates for PATCH endpoints. |
-
----
-
-## Feature List
-
-| Feature | Description | Status |
-|:---|:---|:---|
-| **Dashboard** | Real-time display of 4 KPIs: today's bookings, weekly bookings, weekly revenue, and cancellation rate. Today's booking list and at-risk (HIGH/MEDIUM) booking highlights. 4-week cancellation rate trend chart (Recharts). | Implemented |
-| **Calendar View** | Toggle between week and day views. Staff-based filtering, automatic grayout for closed days, color-coded booking status badges. | Implemented |
-| **Booking Management** | Full booking list with status filters (Pending / Confirmed / Cancelled / Completed / No Show). Status update actions (confirm, cancel, complete). Cancel risk badge display. | Implemented |
-| **Online Booking Flow** | 4-step guided wizard: Service Selection → Date/Time/Staff → Customer Info → Confirmation. Automatic time slot generation at 30-minute intervals with conflict detection. | Implemented |
-| **Service Management** | Create, edit, and toggle services active/inactive. Configure name, description, duration (minutes), and price (JPY). | Implemented |
-| **Business Settings** | Edit shop name, description, address, phone, and email. Flexible per-day business hours and closed day configuration. | Implemented |
-| **AI Cancellation Risk Prediction** | Rule-based engine scores risk (LOW/MEDIUM/HIGH) at booking creation. Admin panel provides on-demand AI analysis via Claude Haiku 4.5 for natural language risk explanation and recommended actions. | Implemented |
-| **Multilingual Support (JP/EN)** | Full Japanese/English switching across admin panel and public booking pages. Language toggle in sidebar and header. Auto-detection via Accept-Language header on public booking pages. | Implemented |
-| **Authentication & Authorization** | Email/password login. Role separation between Admin and Customer. Access control for admin pages. | Implemented |
-| **Booking Details & Cancellation** | Post-booking detail page. Self-service cancellation by customers. | Implemented |
+| **Database Design & Management** | Normalized schema with 7 models using Prisma 7 ORM. Many-to-many relationship via StaffService junction table. Enum types for BookingStatus and CancelRisk. Compatible with Neon Serverless PostgreSQL. |
+| **UI/UX Design** | Design system built on Tailwind CSS 4 custom properties. 6 reusable UI components. 4-step guided booking wizard. Responsive dashboard and calendar views. Locale-aware date/time formatting (24h vs 12h AM/PM, Monday vs Sunday week start). |
+| **Security Implementation** | 5 security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy). Automatic SQL injection prevention via Prisma ORM. Whitelist-based field updates for PATCH endpoints. |
+| **Data Visualization** | Recharts-powered 4-week cancellation rate trend line chart. Real-time KPI dashboard with 4 metric cards (today's bookings, weekly bookings, weekly revenue, cancellation rate). |
 
 ---
 
@@ -83,7 +66,7 @@
 │                                                                   │
 │  ┌──────────────┐  ┌────────────────┐  ┌───────────────────────┐  │
 │  │  Middleware   │  │  API Routes    │  │  Server Components    │  │
-│  │  (Auth Gate)  │  │  (15 endpoints)│  │  (SSR / RSC)         │  │
+│  │  (Auth Gate)  │  │  (14 routes)   │  │  (SSR / RSC)         │  │
 │  └──────┬───────┘  └──────┬─────────┘  └───────────────────────┘  │
 │         │                 │                                       │
 │  ┌──────▼───────┐  ┌──────▼─────────┐  ┌───────────────────────┐  │
@@ -102,6 +85,73 @@
                │   (Neon Serverless) │   │   (Claude Haiku 4.5)│
                └─────────────────────┘   └─────────────────────┘
 ```
+
+---
+
+## Key Features
+
+### Dashboard (Admin)
+
+The admin landing page after login. Displays 4 stat cards (today's bookings, this week's bookings, weekly revenue, cancellation rate) fetched from `/api/admin/stats`. Shows today's booking list and highlights HIGH/MEDIUM risk bookings. Visualizes the past 4 weeks of cancellation rate trends using a Recharts line chart.
+
+### Calendar View
+
+Supports week and day view toggling. The `getWeekDates()` function calculates the week start based on locale (Japanese: Monday start, English: Sunday start). Includes staff-based filtering, grayout for off-hours and closed days, and color-coded status badges on each booking.
+
+### Online Booking Flow
+
+A 4-step wizard interface. Step 1: Service selection with assigned staff display. Step 2: Date, staff, and time slot selection (`/api/timeslots` generates 30-minute interval slots and checks for conflicts with existing bookings). Step 3: Customer information input. Step 4: Review and confirm. On confirmation, the rule-based engine instantly calculates and stores the cancellation risk.
+
+### Booking Management
+
+Full booking list with status filters (Pending / Confirmed / Cancelled / Completed / No Show). Status update actions (confirm, cancel, complete). Cancel risk badge display.
+
+### Service Management
+
+Create, edit, and toggle services active/inactive. Configure name, description, duration (minutes), and price (JPY).
+
+### Business Settings
+
+Edit shop name, description, address, phone, and email. Flexible per-day business hours and closed day configuration.
+
+### AI Cancellation Risk Prediction
+
+Rule-based engine scores risk (LOW/MEDIUM/HIGH) at booking creation. Admin panel provides on-demand AI analysis via Claude Haiku 4.5 for natural language risk explanation and recommended actions.
+
+### Multilingual Support (JP/EN)
+
+Full Japanese/English switching across admin panel and public booking pages. Language toggle in sidebar and header. Auto-detection via Accept-Language header on public booking pages.
+
+### Authentication & Authorization
+
+Email/password login. Role separation between Admin and Customer. Access control for admin pages.
+
+### Booking Details & Cancellation
+
+Post-booking detail page. Self-service cancellation by customers.
+
+---
+
+## API Endpoints
+
+| Method | Path | Auth | Description |
+|:---|:---|:---|:---|
+| GET/POST | `/api/auth/[...nextauth]` | - | NextAuth authentication endpoints |
+| POST | `/api/register` | - | New user registration |
+| GET | `/api/services` | - | List active services (with staff info) |
+| GET | `/api/staff` | - | List active staff (filterable by serviceId) |
+| GET | `/api/timeslots` | - | Get available time slots for date/service/staff |
+| GET | `/api/bookings` | Required | List bookings |
+| POST | `/api/bookings` | Required | Create new booking (auto risk scoring) |
+| GET | `/api/bookings/[id]` | Required | Get booking details |
+| PATCH | `/api/bookings/[id]` | Required | Update booking status |
+| POST | `/api/bookings/[id]/cancel` | Required | Cancel a booking |
+| GET | `/api/admin/stats` | ADMIN | Dashboard statistics |
+| GET/POST | `/api/admin/services` | ADMIN | Service management (list/create) |
+| PATCH/DELETE | `/api/admin/services/[id]` | ADMIN | Update/delete a service |
+| GET/PUT | `/api/admin/settings` | ADMIN | Business settings (get/update) |
+| GET | `/api/admin/cancel-trend` | ADMIN | 4-week cancellation rate trend data |
+| POST | `/api/ai/cancel-risk` | ADMIN | AI risk analysis (Claude Haiku 4.5, JP/EN) |
 
 ---
 
@@ -160,42 +210,7 @@ When no API key is configured, the system falls back to rule-based template resp
 
 ---
 
-## Key Features
-
-### Dashboard (Admin)
-
-The admin landing page after login. Displays 4 stat cards (today's bookings, this week's bookings, weekly revenue, cancellation rate) fetched from `/api/admin/stats`. Shows today's booking list and highlights HIGH/MEDIUM risk bookings. Visualizes the past 4 weeks of cancellation rate trends using a Recharts line chart.
-
-### Calendar View
-
-Supports week and day view toggling. The `getWeekDates()` function calculates the week start based on locale (Japanese: Monday start, English: Sunday start). Includes staff-based filtering, grayout for off-hours and closed days, and color-coded status badges on each booking.
-
-### Online Booking Flow
-
-A 4-step wizard interface. Step 1: Service selection with assigned staff display. Step 2: Date, staff, and time slot selection (`/api/timeslots` generates 30-minute interval slots and checks for conflicts with existing bookings). Step 3: Customer information input. Step 4: Review and confirm. On confirmation, the rule-based engine instantly calculates and stores the cancellation risk.
-
-### Internationalization (i18n)
-
-Integrates next-intl 4.8.3 with the Next.js App Router. Uses cookie-based locale management without adding locale prefixes to URLs. Locale resolution priority: (1) `locale` cookie → (2) Accept-Language header parsing → (3) Default `ja`.
-
-Language switching writes to both Cookie and localStorage, then calls `router.refresh()` for instant updates without a full page reload. The admin sidebar has a JP/EN toggle tab, while auth pages and the public booking page have a globe icon toggle button.
-
-Date and time formatting adapts to locale:
-
-| Element | Japanese | English |
-|:---|:---|:---|
-| Full date | 2026年2月28日土曜日 | Sat, February 28, 2026 |
-| Short date | 2月28日(土) | Sat, Feb 28 |
-| Time | 14:00 | 2:00 PM |
-| Time range | 14:00〜15:00 | 2:00 PM – 3:00 PM |
-| Duration | 60分 / 1時間30分 | 60 min / 1 hr 30 min |
-| Calendar week start | Monday | Sunday |
-
-Translation files are stored in `src/messages/ja.json` and `src/messages/en.json`, organized into 22 namespaces (metadata, common, header, footer, home, auth, sidebar, dashboard, bookingList, status, risk, calendar, services, settings, booking, bookingDetail, ai, riskFactors, riskActions, riskExplanation, languageToggle).
-
----
-
-## Database Design
+## Database Schema
 
 ### Entity Relationship Diagram
 
@@ -260,62 +275,18 @@ Translation files are stored in `src/messages/ja.json` and `src/messages/en.json
 
 Note: Bookings created through the public booking flow are set to `CONFIRMED` status directly.
 
----
-
-## Seed Data
+### Seed Data
 
 A seed script (`prisma/seed.mjs`) populates the database with 70 test bookings for development and demonstration.
 
-### Business
-
-| Field | Value |
+| Category | Details |
 |:---|:---|
-| Name | BLOOM Beauty Studio |
-| Address | 3-15-8 Jingumae, Shibuya-ku, Tokyo |
-| Phone | 03-1234-5678 |
-| Hours | Mon-Fri 10:00-19:00 (Thu-Fri until 20:00), Sat 9:00-19:00, Sun closed |
-
-### Services (5)
-
-| Service | Duration | Price |
-|:---|:---|:---|
-| Cut | 60 min | ¥4,500 |
-| Color | 90 min | ¥8,000 |
-| Treatment | 45 min | ¥3,500 |
-| Perm | 120 min | ¥10,000 |
-| Head Spa | 60 min | ¥5,000 |
-
-### Staff (3) and Service Assignments
-
-| Staff | Assigned Services |
-|:---|:---|
-| Tanaka Misaki | All services (Cut, Color, Treatment, Perm, Head Spa) |
-| Sato Kenta | Cut, Color, Perm |
-| Suzuki Hanako | Cut, Treatment, Head Spa |
-
-### Repeat Customers (5)
-
-| Customer | Bookings | Cancellations | Cancel Rate | Risk Tendency |
-|:---|:---|:---|:---|:---|
-| Tanaka Hanako | 6 | 0 | 0% | LOW (loyal) |
-| Yamada Taro | 5 | 2 | 40% | HIGH |
-| Sasaki Yuko | 4 | 0 | 0% | LOW |
-| Takahashi Ken | 4 | 2 | 50% | HIGH |
-| Nakamura Mai | 3 | 0 | 0% | LOW |
-
-### One-Time Customers
-
-48 bookings generated from 48 unique one-time customers (no customerId linked).
-
-### Booking Status Distribution
-
-| Status | Count |
-|:---|:---|
-| CONFIRMED | 28 |
-| COMPLETED | 24 |
-| CANCELLED | 11 |
-| NO_SHOW | 7 |
-| **Total** | **70** |
+| Business | BLOOM Beauty Studio (Shibuya-ku, Tokyo) |
+| Services | 5 types (Cut ¥4,500 / Color ¥8,000 / Treatment ¥3,500 / Perm ¥10,000 / Head Spa ¥5,000) |
+| Staff | 3 members (Tanaka Misaki: all services / Sato Kenta: Cut, Color, Perm / Suzuki Hanako: Cut, Treatment, Head Spa) |
+| Repeat customers | 5 (2 with 40-50% cancellation rate flagged as HIGH risk) |
+| One-time customers | 48 |
+| Status distribution | CONFIRMED 28 / COMPLETED 24 / CANCELLED 11 / NO_SHOW 7 |
 
 ---
 
@@ -333,7 +304,7 @@ bookflow/
 │   │   ├── page.tsx                  # Landing page
 │   │   ├── globals.css               # Design tokens (Tailwind CSS custom properties)
 │   │   │
-│   │   ├── api/                      # REST API (15 endpoints)
+│   │   ├── api/                      # REST API (14 routes)
 │   │   │   ├── auth/[...nextauth]/   #   NextAuth authentication
 │   │   │   ├── register/             #   User registration
 │   │   │   ├── bookings/             #   Booking CRUD (list/create/detail/update/cancel)
@@ -363,7 +334,7 @@ bookflow/
 │   │
 │   ├── components/
 │   │   ├── ui/                       # Reusable UI components (6)
-│   │   │   ├── button.tsx            #   4 variants (primary/secondary/outline/ghost)
+│   │   │   ├── button.tsx            #   5 variants (primary/secondary/outline/ghost/destructive)
 │   │   │   ├── card.tsx              #   Container card
 │   │   │   ├── input.tsx             #   Form input
 │   │   │   ├── badge.tsx             #   Status badge
@@ -405,8 +376,8 @@ bookflow/
 │   │   └── locale-sync.tsx           #   localStorage ↔ Cookie sync
 │   │
 │   ├── messages/                     # Translation files
-│   │   ├── ja.json                   #   Japanese (282 lines)
-│   │   └── en.json                   #   English (282 lines)
+│   │   ├── ja.json                   #   Japanese (282 lines, 22 namespaces)
+│   │   └── en.json                   #   English (282 lines, 22 namespaces)
 │   │
 │   ├── lib/                          # Utilities
 │   │   ├── auth.ts                   #   NextAuth config (JWT + RBAC)
