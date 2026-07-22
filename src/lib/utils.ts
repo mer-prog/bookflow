@@ -80,6 +80,19 @@ export function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
+export function timeRangesOverlap(
+  startA: string,
+  endA: string,
+  startB: string,
+  endB: string
+): boolean {
+  // Half-open intervals [start, end): back-to-back bookings (endA === startB) do not overlap
+  return (
+    timeToMinutes(startA) < timeToMinutes(endB) &&
+    timeToMinutes(endA) > timeToMinutes(startB)
+  );
+}
+
 export function getDayName(date: Date): string {
   const days = [
     "sunday",
