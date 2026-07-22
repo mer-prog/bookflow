@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { addMinutes } from "@/lib/utils";
+import { addMinutes, timeRangesOverlap } from "@/lib/utils";
 import { calculateCancelRisk } from "@/lib/cancel-risk";
 import { auth } from "@/lib/auth";
 
@@ -100,24 +100,70 @@ export async function POST(request: Request) {
     totalBookings,
   });
 
-  const booking = await prisma.booking.create({
-    data: {
-      businessId: business.id,
-      serviceId,
-      staffId,
-      customerId,
-      customerName,
-      customerEmail,
-      customerPhone: customerPhone || null,
-      date: bookingDate,
-      startTime: time,
-      endTime,
-      status: "CONFIRMED",
-      cancelRisk,
-      notes: notes || null,
-    },
-    include: { service: true, staff: true },
-  });
+  // Reject double bookings: conflict check + create run atomically in a
+  // Serializable transaction so concurrent requests cannot both pass the check
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
 
-  return NextResponse.json(booking, { status: 201 });
+  try {
+    const booking = await prisma.$transaction(
+      async (tx) => {
+        const existingBookings = await tx.booking.findMany({
+          where: {
+            staffId,
+            date: { gte: startOfDay, lte: endOfDay },
+            status: { in: ["CONFIRMED", "PENDING"] },
+          },
+        });
+
+        const hasConflict = existingBookings.some((b) =>
+          timeRangesOverlap(time, endTime, b.startTime, b.endTime)
+        );
+        if (hasConflict) return null;
+
+        return tx.booking.create({
+          data: {
+            businessId: business.id,
+            serviceId,
+            staffId,
+            customerId,
+            customerName,
+            customerEmail,
+            customerPhone: customerPhone || null,
+            date: bookingDate,
+            startTime: time,
+            endTime,
+            status: "CONFIRMED",
+            cancelRisk,
+            notes: notes || null,
+          },
+          include: { service: true, staff: true },
+        });
+      },
+      { isolationLevel: "Serializable" }
+    );
+
+    if (!booking) {
+      return NextResponse.json(
+        { error: "指定の時間帯は既に予約が入っています" },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(booking, { status: 201 });
+  } catch (error) {
+    // P2034: serialization conflict between concurrent transactions
+    if (
+      error instanceof Error &&
+      (error as Error & { code?: string }).code === "P2034"
+    ) {
+      return NextResponse.json(
+        { error: "指定の時間帯は既に予約が入っています" },
+        { status: 409 }
+      );
+    }
+    throw error;
+  }
 }
